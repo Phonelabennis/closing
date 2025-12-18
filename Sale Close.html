@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Sales Closure - Phone Lab</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-teal: #0d9488;
+            --secondary-amber: #f59e0b;
+            --bg-light: #f8fafc;
+            --slate-900: #0f172a;
+            --slate-700: #334155;
+            --slate-400: #94a3b8;
+            --slate-100: #f1f5f9;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--slate-700);
+            line-height: 1.5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        /* Header UI */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 0 8px;
+        }
+
+        header h1 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--slate-900);
+        }
+
+        .reset-btn {
+            background: #fee2e2;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 2px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #ef4444;
+            cursor: pointer;
+        }
+
+        /* Card */
+        .app-card {
+            background: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--slate-100);
+            overflow: hidden;
+        }
+
+        form {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        label {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--slate-400);
+            letter-spacing: 0.05em;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--slate-400);
+            font-weight: 700;
+        }
+
+        input, select {
+            width: 100%;
+            background-color: #f8fafc;
+            border: 2px solid #f8fafc;
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--slate-700);
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            background-color: var(--white);
+            border-color: var(--secondary-amber);
+        }
+
+        .pl-8 { padding-left: 32px; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* Total Section */
+        .total-display {
+            background-color: var(--slate-900);
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .total-display p {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--slate-400);
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .total-display h2 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--white);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background-color: var(--secondary-amber);
+            color: var(--white);
+            font-weight: 900;
+            padding: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-secondary {
+            background-color: var(--slate-100);
+            color: var(--slate-700);
+            font-weight: 700;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* Receipt View */
+        #receipt-output { 
+            display: none; 
+            font-family: 'Courier Prime', monospace; 
+            color: black;
+            line-height: 1.2;
+        }
+
+        .toast {
+            display: none;
+            background-color: #10b981;
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        /* Printing Styles - Optimized for thermal paper */
+        @media print {
+            @page {
+                margin: 0;
+            }
+            body { background: white; padding: 0; margin: 0; display: block; }
+            .print-hidden { display: none !important; }
+            #receipt-output {
+                display: block !important;
+                width: 58mm; /* Standard narrow thermal width */
+                padding: 2mm;
+                margin: 0;
+            }
+            .flex-between { 
+                display: flex; 
+                justify-content: space-between; 
+                margin-bottom: 2px;
+                font-size: 12px;
+            }
+            .text-center { text-align: center; }
+            .border-b { border-bottom: 1px dashed black; padding-bottom: 5px; margin-bottom: 5px; }
+            .mt-2 { margin-top: 8px; }
+            .bold { font-weight: bold; }
+            .receipt-header { font-size: 11px; margin-bottom: 5px; }
+            .section-title { font-size: 10px; text-decoration: underline; margin-top: 5px; margin-bottom: 2px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="print-hidden">
+            <h1>Phone Lab</h1>
+            <button onclick="clearForm()" class="reset-btn">Reset</button>
+        </header>
+
+        <main class="app-card print-hidden">
+            <div id="save-toast" class="toast">Report Generated</div>
+
+            <form id="sale-form" onsubmit="event.preventDefault();">
+                <div class="input-group">
+                    <label>Cash Collection</label>
+                    <div class="input-wrapper">
+                        <span class="currency-symbol">€</span>
+                        <input type="number" id="cashSale" step="0.01" placeholder="0.00" class="pl-8" oninput="calculateTotal()">
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <div class="input-group">
+                        <label>Card BOI</label>
+                        <input type="number" id="cardBOI" step="0.01" placeholder="0.00" oninput="calculateTotal()">
+                    </div>
+                    <div class="input-group">
+                        <label>Card Fixed</label>
+                        <input type="number" id="cardFixed" step="0.01" placeholder="0.00" oninput="calculateTotal()">
+                    </div>
+                </div>
+
+                <div style="border-top: 1px solid var(--slate-100); padding-top: 10px;">
+                    <label style="color: var(--primary-teal)">Expenses (Leave blank to hide)</label>
+                    <div class="grid" style="margin-top: 8px;">
+                        <div class="input-group">
+                            <label>Purchased Mobile</label>
+                            <input type="number" id="expMobile" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="input-group">
+                            <label>Cleaning</label>
+                            <input type="number" id="expCleaning" step="0.01" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="input-group" style="margin-top: 8px;">
+                        <label>Other Expense</label>
+                        <input type="number" id="expOther" step="0.01" placeholder="0.00">
+                    </div>
+                </div>
+
+                <div class="total-display">
+                    <p>Grand Total Sales</p>
+                    <h2 id="totalSaleDisplay">€ 0.00</h2>
+                </div>
+
+                <div class="input-group">
+                    <label>Closed By</label>
+                    <select id="saleBySig" required>
+                        <option value="">Select Staff...</option>
+                        <option value="Tanveer">Tanveer</option>
+                        <option value="Chirag">Chirag</option>
+			<option value="Rutvik">Rutvik</option>
+                        <option value="Tanveer & Chirag">Tanveer & Chirag</option>
+			<option value="Rutvik & Chirag">Rutvik & Chirag</option>
+			<option value="Tanveer & Rutvik">Tanveer & Rutvik</option>
+                    </select>
+                </div>
+
+                <button type="button" onclick="printSaleSlip()" class="btn-primary">
+                    PRINT RECEIPT
+                </button>
+                <button type="button" onclick="copyToClipboard()" class="btn-secondary">
+                    Copy Text Summary
+                </button>
+            </form>
+        </main>
+
+        <!-- Thermal Receipt Area -->
+        <div id="receipt-output">
+            <div class="text-center border-b">
+                <p class="receipt-header bold" id="receipt-title-date"></p>
+                <p style="font-size: 10px;" id="receipt-date-time"></p>
+            </div>
+
+            <div class="mt-2">
+                <div class="flex-between"><span>CASH:</span><span id="p-cash">0.00</span></div>
+                <div class="flex-between"><span>CARD BOI:</span><span id="p-boi">0.00</span></div>
+                <div class="flex-between"><span>CARD FIXED:</span><span id="p-fixed">0.00</span></div>
+                <div class="flex-between bold" style="border-top: 1px solid black; margin-top: 4px; padding-top: 2px;">
+                    <span>TOTAL:</span><span id="p-total">€ 0.00</span>
+                </div>
+            </div>
+
+            <div id="p-expense-section" style="margin-top: 8px; border-top: 1px dashed #ccc; padding-top: 4px;">
+                <p class="section-title bold">EXPENSES</p>
+                <div id="p-exp-mobile-row" class="flex-between"><span>Mobile:</span><span id="p-exp-mobile">0.00</span></div>
+                <div id="p-exp-cleaning-row" class="flex-between"><span>Cleaning:</span><span id="p-exp-cleaning">0.00</span></div>
+                <div id="p-exp-other-row" class="flex-between"><span>Other:</span><span id="p-exp-other">0.00</span></div>
+            </div>
+
+            <div class="text-center mt-2" style="margin-top: 15px;">
+                <p style="font-size: 9px; text-transform: uppercase;">Closing Signature</p>
+                <p id="p-sig" style="font-size: 14px; font-weight: bold;"></p>
+                <p style="font-size: 8px; margin-top: 15px; border-top: 1px solid black; padding-top: 2px;">DAILY END REPORT</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculateTotal() {
+            const cash = parseFloat(document.getElementById('cashSale').value) || 0;
+            const boi = parseFloat(document.getElementById('cardBOI').value) || 0;
+            const fixed = parseFloat(document.getElementById('cardFixed').value) || 0;
+            const total = cash + boi + fixed;
+            
+            document.getElementById('totalSaleDisplay').innerText = `€ ${total.toFixed(2)}`;
+            return { cash, boi, fixed, total };
+        }
+
+        function printSaleSlip() {
+            const sig = document.getElementById('saleBySig').value;
+            if (!sig) {
+                const appCard = document.getElementById('app-card');
+                alert("Please select staff name first.");
+                return;
+            }
+
+            const data = calculateTotal();
+            const now = new Date();
+            
+            // Format: Closing: Monday, 15 December 2025
+            const dateOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            document.getElementById('receipt-title-date').innerText = `Closing: ${now.toLocaleDateString('en-GB', dateOptions)}`;
+            document.getElementById('receipt-date-time').innerText = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+            // Basic Data
+            document.getElementById('p-cash').innerText = data.cash.toFixed(2);
+            document.getElementById('p-boi').innerText = data.boi.toFixed(2);
+            document.getElementById('p-fixed').innerText = data.fixed.toFixed(2);
+            document.getElementById('p-total').innerText = `€ ${data.total.toFixed(2)}`;
+            document.getElementById('p-sig').innerText = sig;
+
+            // Expenses Logic
+            const expMobile = parseFloat(document.getElementById('expMobile').value) || 0;
+            const expCleaning = parseFloat(document.getElementById('expCleaning').value) || 0;
+            const expOther = parseFloat(document.getElementById('expOther').value) || 0;
+
+            let hasExpenses = false;
+            
+            if (expMobile > 0) {
+                document.getElementById('p-exp-mobile-row').style.display = 'flex';
+                document.getElementById('p-exp-mobile').innerText = expMobile.toFixed(2);
+                hasExpenses = true;
+            } else {
+                document.getElementById('p-exp-mobile-row').style.display = 'none';
+            }
+
+            if (expCleaning > 0) {
+                document.getElementById('p-exp-cleaning-row').style.display = 'flex';
+                document.getElementById('p-exp-cleaning').innerText = expCleaning.toFixed(2);
+                hasExpenses = true;
+            } else {
+                document.getElementById('p-exp-cleaning-row').style.display = 'none';
+            }
+
+            if (expOther > 0) {
+                document.getElementById('p-exp-other-row').style.display = 'flex';
+                document.getElementById('p-exp-other').innerText = expOther.toFixed(2);
+                hasExpenses = true;
+            } else {
+                document.getElementById('p-exp-other-row').style.display = 'none';
+            }
+
+            document.getElementById('p-expense-section').style.display = hasExpenses ? 'block' : 'none';
+
+            window.print();
+            showToast();
+        }
+
+        function copyToClipboard() {
+            const data = calculateTotal();
+            const sig = document.getElementById('saleBySig').value || "Not Specified";
+            const expMobile = document.getElementById('expMobile').value || 0;
+            const expCleaning = document.getElementById('expCleaning').value || 0;
+            const expOther = document.getElementById('expOther').value || 0;
+
+            let text = `*Phone Lab - Daily Closure*\nDate: ${new Date().toLocaleDateString()}\n---\n`;
+            text += `Cash: €${data.cash.toFixed(2)}\n`;
+            text += `Card BOI: €${data.boi.toFixed(2)}\n`;
+            text += `Card Fixed: €${data.fixed.toFixed(2)}\n`;
+            text += `TOTAL: €${data.total.toFixed(2)}\n`;
+            
+            if(expMobile > 0 || expCleaning > 0 || expOther > 0) {
+                text += `\n*Expenses:*\n`;
+                if(expMobile > 0) text += `- Mobile: €${expMobile}\n`;
+                if(expCleaning > 0) text += `- Cleaning: €${expCleaning}\n`;
+                if(expOther > 0) text += `- Other: €${expOther}\n`;
+            }
+
+            text += `\nClosed by: ${sig}`;
+            
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            const toast = document.getElementById('save-toast');
+            toast.innerText = "Summary Copied!";
+            showToast();
+        }
+
+        function showToast() {
+            const toast = document.getElementById('save-toast');
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+                toast.innerText = "Report Generated";
+            }, 3000);
+        }
+
+        function clearForm() {
+            const confirmed = document.createElement('div');
+            if(confirm("Start a new blank report?")) {
+                document.getElementById('sale-form').reset();
+                calculateTotal();
+            }
+        }
+    </script>
+</body>
+</html>
